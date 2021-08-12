@@ -1,0 +1,83 @@
+grammar org.xtext.example.mydsl1.SQLEXAM with org.eclipse.xtext.common.Terminals
+
+generate sQLEXAM "http://www.xtext.org/example/mydsl1/SQLEXAM"
+
+
+
+SQLSystem:
+	'SYSTEM' name=ID 'URL' value=STRING operation+=Operations*
+;
+Operations:
+	Add|Remove|Select|Relationship|RemoveAll|SelectAll|SelectDistinct
+;
+Relationship:
+	'RELATION' name=ID 'FROM' foreignkey+=ForeignKey*
+	;
+
+Select:
+	{Select} 'SELECT' name = ID 'FROM' table=Table attributes+=Attribute*
+;
+
+Table:
+	'TABLE' table=[Add]
+;
+SelectDistinct:
+	'SELECT' 'DISTINCT' name= ID 'FROM' table=Table
+;
+
+Remove:
+	{Remove} 'DELETE' name = ID 'FROM' table =Table attribute+=Attribute*
+;
+ForeignKey:
+	'FOREIGN' 'KEY' name = ID ':' type=('STRING'|'INT') 'REFERENCE' overType=[Add] 
+;
+Add:
+	'ADD' name= ID (primaryKey = PrimaryKey)? attributes+=Attribute*
+;
+RemoveAll:
+	'REMOVEALL' table = Table
+;
+SelectAll:
+	'SELECTALL' table = Table
+;
+
+PrimaryKey:
+	'PRIMARY' 'KEY' name=ID ':' type=('STRING'|'INT') ('REQUIRE' requirement = [PrimaryKey] requirement1 = LogicalEXP)?
+;
+
+Attribute:
+	'ATTRIBUTE' name=ID ':' type=('STRING'|'INT') ('REQUIRE' requirement = [Attribute]  requirement1 = LogicalEXP andOr+=AndOrAttribute*)?
+;
+AndOrAttribute:
+	type=('&&'|'||') att=[Attribute] math=LogicalEXP
+;
+LogicalEXP:
+	left=RelationalOp right =MathExp
+;
+RelationalOp:
+	type=('='|'<'|'>'|'<='|'>=')
+;
+MathExp:
+	exp=ExpPlus
+;
+ExpPlus returns Expression:
+	exp1 = ExpMinus('+' {Plus.exp1=current} exp2 = ExpMinus)*
+;
+ExpMinus returns Expression:
+	exp1= ExpMult('-' {Minus.exp1=current} exp2 = ExpMult)*
+;
+ExpMult returns Expression:
+	exp1 = ExpDiv('*' {Mult.exp1=current} exp2 = ExpDiv)*
+;
+ExpDiv returns Expression:
+	exp1=TextPrim ('/'{Div.exp1=current} exp2 = TextPrim)*
+;
+TextPrim:
+	Numbers | Parenthesis
+;
+Numbers:
+	value=INT
+;
+Parenthesis:
+	'(' exp=ExpPlus')'
+;

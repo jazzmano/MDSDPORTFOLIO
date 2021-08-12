@@ -1,0 +1,23 @@
+SYSTEM Name URL "DB URL"
+
+ADD Person 
+
+ATTRIBUTE age : INT REQUIRE age < 1+2*3
+
+SELECTALL TABLE Person
+
+REMOVEALL TABLE Person
+
+
+SELECT InsertName FROM TABLE Person ATTRIBUTE mor : STRING 
+
+DELETE someOne FROM TABLE Person ATTRIBUTE far : STRING 
+
+
+
+
+ 
+
+
+
+
